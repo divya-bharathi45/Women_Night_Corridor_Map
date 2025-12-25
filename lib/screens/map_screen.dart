@@ -1,97 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 
-class MapScreen extends StatefulWidget {
+class MapScreen extends StatelessWidget {
   final String startPlace;
   final String destinationPlace;
+  final Position? userPosition;
 
   const MapScreen({
     super.key,
     required this.startPlace,
     required this.destinationPlace,
+    required this.userPosition,
   });
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
-}
-
-class _MapScreenState extends State<MapScreen> {
-  LatLng? currentLocation;
-
-  @override
-  void initState() {
-    super.initState();
-    _getLocation();
-  }
-
-  Future<void> _getLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    setState(() {
-      currentLocation = LatLng(position.latitude, position.longitude);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (currentLocation == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.destinationPlace),
-        backgroundColor: Colors.pinkAccent,
+        title: const Text("Route Map"),
+        backgroundColor: Colors.blueGrey,
       ),
-      body: FlutterMap(
-        options: MapOptions(
-          initialCenter: currentLocation!,
-          initialZoom: 14,
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Start: $startPlace"),
+            const SizedBox(height: 10),
+            Text("Destination: $destinationPlace"),
+            const SizedBox(height: 20),
+            if (userPosition != null)
+              Text(
+                  "Lat: ${userPosition!.latitude}, Lng: ${userPosition!.longitude}"),
+          ],
         ),
-        children: [
-          TileLayer(
-            urlTemplate:
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            userAgentPackageName:
-                "com.example.women_night_corridor_map",
-          ),
-
-          // Temporary demo route
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: [
-                  currentLocation!,
-                  LatLng(
-                    currentLocation!.latitude + 0.01,
-                    currentLocation!.longitude + 0.01,
-                  ),
-                ],
-                strokeWidth: 5,
-                color: Colors.green,
-              ),
-            ],
-          ),
-
-          MarkerLayer(
-            markers: [
-              Marker(
-                point: currentLocation!,
-                child: const Icon(
-                  Icons.my_location,
-                  color: Colors.blue,
-                  size: 30,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
