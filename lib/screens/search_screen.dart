@@ -22,6 +22,13 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> useMyLocation() async {
     setState(() => loadingLocation = true);
 
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showSnack("Location services are disabled");
+      setState(() => loadingLocation = false);
+      return;
+    }
+
     LocationPermission permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
@@ -29,21 +36,25 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Location permission permanently denied")),
-      );
+      _showSnack("Location permission permanently denied");
       setState(() => loadingLocation = false);
       return;
     }
 
     userPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+      desiredAccuracy: LocationAccuracy.high,
+    );
 
     setState(() {
       usingCurrentLocation = true;
-      startPlaceController.text = "My Current Location";
+      startPlaceController.text = "Start Place";
       loadingLocation = false;
     });
+  }
+
+  void _showSnack(String msg) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -59,13 +70,13 @@ class _SearchScreenState extends State<SearchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const Text(
               "Your Safety Matters 🩵",
               style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.lightBlueAccent),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.lightBlueAccent,
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -77,9 +88,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 labelText: "Start Place",
                 prefixIcon: const Icon(Icons.my_location),
                 filled: true,
-                fillColor: Colors.white,
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
 
@@ -87,7 +98,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
             // USE MY LOCATION BUTTON
             loadingLocation
-                ? const CircularProgressIndicator()
+                ? const Center(child: CircularProgressIndicator())
                 : TextButton.icon(
                     onPressed: useMyLocation,
                     icon: const Icon(Icons.gps_fixed),
@@ -103,48 +114,54 @@ class _SearchScreenState extends State<SearchScreen> {
                 labelText: "Destination Place",
                 prefixIcon: const Icon(Icons.location_on),
                 filled: true,
-                fillColor: Colors.white,
                 border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
 
             const SizedBox(height: 30),
 
-            ElevatedButton(
-              onPressed: () {
-                if (destinationPlaceController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Enter destination")),
-                  );
-                  return;
-                }
+            // FIND ROUTE BUTTON
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (destinationPlaceController.text.isEmpty) {
+                    _showSnack("Enter destination");
+                    return;
+                  }
 
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => MapScreen(
-                      startPlace: startPlaceController.text,
-                      destinationPlace: destinationPlaceController.text,
-                      userPosition: userPosition,
+                  if (usingCurrentLocation && userPosition == null) {
+                    _showSnack("Fetching your location...");
+                    return;
+                  }
+
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MapScreen(
+                        startPlace: startPlaceController.text,
+                        destinationPlace: destinationPlaceController.text,
+                        userPosition: userPosition, // 🔑 IMPORTANT
+                      ),
                     ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.greenAccent,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal:50,vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent,
-                
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                     shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
                 ),
-                
+                child: const Text(
+                  "Find Route",
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-              child: const Text(
-                "Find Route",style: TextStyle(fontSize: 18)),
-              
-            )
+            ),
           ],
         ),
       ),

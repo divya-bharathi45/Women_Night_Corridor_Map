@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MapScreen extends StatelessWidget {
@@ -15,25 +17,44 @@ class MapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    LatLng center = userPosition != null
+        ? LatLng(userPosition!.latitude, userPosition!.longitude)
+        : const LatLng(8.703596, 77.448539); // Tirunelveli fallback
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Route Map"),
-        backgroundColor: Colors.blueGrey,
+        title: Text("$startPlace → $destinationPlace"),
+        backgroundColor: Colors.deepPurple,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Start: $startPlace"),
-            const SizedBox(height: 10),
-            Text("Destination: $destinationPlace"),
-            const SizedBox(height: 20),
-            if (userPosition != null)
-              Text(
-                  "Lat: ${userPosition!.latitude}, Lng: ${userPosition!.longitude}"),
-          ],
+      body: FlutterMap(
+        options: MapOptions(
+          initialCenter: center,
+          initialZoom: 14,
         ),
+        children: [
+          TileLayer(
+            urlTemplate:
+                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName:
+                'com.example.women_night_corridor_map',
+          ),
+
+          if (userPosition != null)
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: center,
+                  width: 40,
+                  height: 40,
+                  child: const Icon(
+                    Icons.my_location,
+                    color: Colors.blue,
+                    size: 30,
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
