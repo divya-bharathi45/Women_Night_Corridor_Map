@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../data/ambasamudram_kallidai_routes.dart';
+
 class MapScreen extends StatelessWidget {
   final String startPlace;
   final String destinationPlace;
@@ -17,9 +19,9 @@ class MapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    LatLng center = userPosition != null
-        ? LatLng(userPosition!.latitude, userPosition!.longitude)
-        : const LatLng(8.703596, 77.448539); // Tirunelveli fallback
+    // 🟢 Center map using dataset
+    final LatLng center =
+        ambasamudramToKallidaiRoutes.first.points.first;
 
     return Scaffold(
       appBar: AppBar(
@@ -29,21 +31,39 @@ class MapScreen extends StatelessWidget {
       body: FlutterMap(
         options: MapOptions(
           initialCenter: center,
-          initialZoom: 14,
+          initialZoom: 13,
+          minZoom:5,
+          maxZoom:19,
         ),
         children: [
+          // 🗺 OpenStreetMap
           TileLayer(
             urlTemplate:
-                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
             userAgentPackageName:
                 'com.example.women_night_corridor_map',
           ),
 
+          // 🟢 ROUTE POLYLINES
+          PolylineLayer(
+            polylines: ambasamudramToKallidaiRoutes.map((route) {
+              return Polyline(
+                points: route.points,
+                strokeWidth: 5,
+                color: Colors.green,
+              );
+            }).toList(),
+          ),
+
+          // 🔵 USER CURRENT LOCATION
           if (userPosition != null)
             MarkerLayer(
               markers: [
                 Marker(
-                  point: center,
+                  point: LatLng(
+                    userPosition!.latitude,
+                    userPosition!.longitude,
+                  ),
                   width: 40,
                   height: 40,
                   child: const Icon(

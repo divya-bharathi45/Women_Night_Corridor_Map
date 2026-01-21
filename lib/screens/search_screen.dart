@@ -15,29 +15,28 @@ class _SearchScreenState extends State<SearchScreen> {
       TextEditingController();
 
   bool usingCurrentLocation = false;
-  Position? userPosition;
   bool loadingLocation = false;
+  Position? userPosition;
 
-  // 📍 Ask permission + fetch location
   Future<void> useMyLocation() async {
     setState(() => loadingLocation = true);
 
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      _showSnack("Location services are disabled");
-      setState(() => loadingLocation = false);
+      _showSnack("Turn on location services");
+      loadingLocation = false;
       return;
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
-
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      _showSnack("Location permission permanently denied");
-      setState(() => loadingLocation = false);
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      _showSnack("Location permission denied");
+      loadingLocation = false;
       return;
     }
 
@@ -47,7 +46,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     setState(() {
       usingCurrentLocation = true;
-      startPlaceController.text = "Start Place";
+      startPlaceController.text = "My Current Location";
       loadingLocation = false;
     });
   }
@@ -60,9 +59,8 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Enter Route Details"),
+        title: const Text("Plan Safe Route"),
         backgroundColor: Colors.pinkAccent,
       ),
       body: Padding(
@@ -78,16 +76,15 @@ class _SearchScreenState extends State<SearchScreen> {
                 color: Colors.lightBlueAccent,
               ),
             ),
+
             const SizedBox(height: 20),
 
-            // START PLACE
             TextField(
               controller: startPlaceController,
               readOnly: usingCurrentLocation,
               decoration: InputDecoration(
                 labelText: "Start Place",
                 prefixIcon: const Icon(Icons.my_location),
-                filled: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -96,7 +93,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
             const SizedBox(height: 10),
 
-            // USE MY LOCATION BUTTON
             loadingLocation
                 ? const Center(child: CircularProgressIndicator())
                 : TextButton.icon(
@@ -107,13 +103,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
             const SizedBox(height: 20),
 
-            // DESTINATION
             TextField(
               controller: destinationPlaceController,
               decoration: InputDecoration(
                 labelText: "Destination Place",
                 prefixIcon: const Icon(Icons.location_on),
-                filled: true,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -122,7 +116,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
             const SizedBox(height: 30),
 
-            // FIND ROUTE BUTTON
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -132,18 +125,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     return;
                   }
 
-                  if (usingCurrentLocation && userPosition == null) {
-                    _showSnack("Fetching your location...");
-                    return;
-                  }
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => MapScreen(
                         startPlace: startPlaceController.text,
-                        destinationPlace: destinationPlaceController.text,
-                        userPosition: userPosition, // 🔑 IMPORTANT
+                        destinationPlace:
+                            destinationPlaceController.text,
+                        userPosition: userPosition,
                       ),
                     ),
                   );
@@ -151,7 +140,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.greenAccent,
                   padding:
-                      const EdgeInsets.symmetric(horizontal:50,vertical: 15),
+                      const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),

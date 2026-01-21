@@ -112,8 +112,8 @@ class _RouteInputScreenState extends State<RouteInputScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => MapScreen(
-                        startLocation: startController.text,
-                        destinationLocation: destinationController.text,
+                        startPlace: startController.text,
+                        destinationPlace: destinationController.text,
                       ),
                     ),
                   );
