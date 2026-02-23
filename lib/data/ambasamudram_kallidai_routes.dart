@@ -30,43 +30,36 @@ final List<RouteData> ambasamudramToKallidaiRoutes = [
       LatLng(8.692219161980653, 77.4621796514716), //Ilayaraja Hospital
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
-      LatLng(8.687989015753688,77.46172532954827,), //Kallidaikurichi Town Panchayat Office
+      LatLng(
+        8.687989015753688,
+        77.46172532954827,
+      ), //Kallidaikurichi Town Panchayat Office
       LatLng(8.685882246714337, 77.46136005576729), //Apollo kallidai
       LatLng(8.684722377860535, 77.46194845757441), //TMB ATM
       LatLng(8.683877397257417, 77.4627003007461), // Tilakar vidhyalaya
-      LatLng(8.681494787100771,77.46521491148654), //kallidaikurichi RS bus stop
-      LatLng(8.681119385437025,77.46684806636836), //kallidaikurichi hotel SS Biriyani
+      LatLng(
+        8.681494787100771,
+        77.46521491148654,
+      ), //kallidaikurichi RS bus stop
+      LatLng(
+        8.681119385437025,
+        77.46684806636836,
+      ), //kallidaikurichi hotel SS Biriyani
       LatLng(8.68069624438349, 77.46872926766959), //kallidaikurichi Petrol Bunk
-      LatLng(8.680185847913474,77.47012382702678), //kallidaikurichi New Bust Stand
+      LatLng(
+        8.680185847913474,
+        77.47012382702678,
+      ), //kallidaikurichi New Bust Stand
       LatLng(8.67979638094291, 77.47340846234984), // kottaitheru-kallidai end
       LatLng(8.680148537252103, 77.47603161224738), //Thamirabarani river meet
       LatLng(8.678974607319928, 77.47845021339509), //Thamirabarani river meet2
-      LatLng(8.678639384284915,77.4806434995189), // Mayopathy Home -Kallidaikurichi ends
+      LatLng(
+        8.678639384284915,
+        77.4806434995189,
+      ), // Mayopathy Home -Kallidaikurichi ends
     ],
-    policeCount: 2,
-    hospitalCount: 2,
-    hasCCTV: true,
-    hasStreetLights: true,
-  ),
-
-  RouteData(
-    routeName: "Ambai Bus Stop Road Route",
-    points: [
-      LatLng(8.706816523356379, 77.43595534097454), // Ambasamudram RS
-      LatLng(8.706844990328465, 77.43663893483111), //Ezy riders E-bike
-      LatLng(8.706586343572148, 77.43803903251198), //Vikasa School bus stop
-      LatLng(8.706377446186588, 77.43877125541556), // bharath petroleum
-      LatLng(8.70610148924672, 77.43953370357079), //Sri Ram Mills
-      LatLng(8.705485498395275, 77.4415355325715), //Rani school Bus stop
-      LatLng(8.704439155451901, 77.44475809317994), //LIC Of India
-      LatLng(8.704299924115716, 77.44514650774934), //HDFC Bank
-      LatLng(8.703966612517023, 77.4461879710585), //Hotel Ambai Grand
-      LatLng(8.703645958040452, 77.44801480015393), // Old Market
-      LatLng(8.703873791507535, 77.45088736080505), //Agasthiyar kovil
-      LatLng(8.703789629460283, 77.45538748832419), //CSI church
-    ],
-    policeCount: 2,
-    hospitalCount: 2,
+    policeCount: 9,
+    hospitalCount: 8,
     hasCCTV: true,
     hasStreetLights: true,
   ),
@@ -90,7 +83,10 @@ final List<RouteData> ambasamudramToKallidaiRoutes = [
       LatLng(8.708678006863478, 77.43923559700454), //Bypass starting
       LatLng(8.709144632864092, 77.43998661552985), //Bypass
       LatLng(8.709187053388025, 77.44270101105097), //Bypass
-      LatLng(8.709099412124411,77.44500093574294,), //Pothigai narayana samy temple
+      LatLng(
+        8.709099412124411,
+        77.44500093574294,
+      ), //Pothigai narayana samy temple
       LatLng(8.709035947765722, 77.44754125478543), //Madasamy temple
       LatLng(8.708957427579461, 77.4497107050797), //bypass river
       LatLng(8.708735856157984, 77.45466991870846), //bypass areas
@@ -134,31 +130,9 @@ final List<RouteData> ambasamudramToKallidaiRoutes = [
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
     ],
-    policeCount: 2,
-    hospitalCount: 2,
-    hasCCTV: true,
-    hasStreetLights: true,
-  ),
-
-  RouteData(
-    routeName: "Main Road Route",
-    points: [
-      LatLng(8.706816523356379, 77.43595534097454), // Ambasamudram RS
-      LatLng(8.706844990328465, 77.43663893483111), //Ezy riders E-bike
-      LatLng(8.706586343572148, 77.43803903251198), //Vikasa School bus stop
-      LatLng(8.706377446186588, 77.43877125541556), // bharath petroleum
-      LatLng(8.70610148924672, 77.43953370357079), //Sri Ram Mills
-      LatLng(8.705485498395275, 77.4415355325715), //Rani school Bus stop
-      LatLng(8.704439155451901, 77.44475809317994), //LIC Of India
-      LatLng(8.704299924115716, 77.44514650774934), //HDFC Bank
-      LatLng(8.703966612517023, 77.4461879710585), //Hotel Ambai Grand
-      LatLng(8.703645958040452, 77.44801480015393), // Old Market
-      LatLng(8.703873791507535, 77.45088736080505), //Agasthiyar kovil
-      LatLng(8.703789629460283, 77.45538748832419), //CSI church
-    ],
-    policeCount: 2,
-    hospitalCount: 2,
-    hasCCTV: true,
-    hasStreetLights: true,
+    policeCount: 0,
+    hospitalCount: 0,
+    hasCCTV: false,
+    hasStreetLights: false,
   ),
 ];
