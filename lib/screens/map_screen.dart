@@ -9,7 +9,6 @@ import '../data/route_data.dart';
 import '../models/safety_score.dart';
 
 class MapScreen extends StatefulWidget {
-
   final String startPlace;
   final String destinationPlace;
   final Position? userPosition;
@@ -32,18 +31,18 @@ class _MapScreenState extends State<MapScreen>
 
   @override
   void initState() {
-
     super.initState();
 
+    /// Glow animation controller
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
+    /// Show popup after screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showSafestRouteDialog();
     });
-
   }
 
   @override
@@ -52,14 +51,17 @@ class _MapScreenState extends State<MapScreen>
     super.dispose();
   }
 
+  /// Popup dialog
   void _showSafestRouteDialog() {
-
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("🛡 Safest Route Selected"),
         content: const Text(
-            "Green glowing route is safest.\nRed route is dangerous.\nAvoid red routes at night."),
+          "Green glowing route is safest.\n"
+          "Red route is dangerous.\n"
+          "Avoid red routes at night.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -68,13 +70,12 @@ class _MapScreenState extends State<MapScreen>
         ],
       ),
     );
-
   }
 
   @override
   Widget build(BuildContext context) {
 
-    /// CALCULATE SCORES
+    /// STEP 1: Calculate safety scores
     final routesWithScore = ambasamudramToKallidaiRoutes.map((route) {
 
       final score = SafetyScoreCalculator.calculate(route);
@@ -86,14 +87,20 @@ class _MapScreenState extends State<MapScreen>
 
     }).toList();
 
-    /// SORT BY BEST SCORE
+    /// STEP 2: Sort highest score first
     routesWithScore.sort(
       (a, b) =>
           (b["score"] as double).compareTo(a["score"] as double),
     );
 
+    /// STEP 3: Safest route
     final safestRoute =
         routesWithScore.first["route"] as RouteData;
+
+    /// Convert safest route points to Set for fast comparison
+    final safestPointsSet = safestRoute.points
+        .map((p) => "${p.latitude},${p.longitude}")
+        .toSet();
 
     final LatLng startPoint = safestRoute.points.first;
     final LatLng endPoint = safestRoute.points.last;
@@ -123,7 +130,7 @@ class _MapScreenState extends State<MapScreen>
 
             children: [
 
-              /// MAP
+              /// MAP TILES
               TileLayer(
                 urlTemplate:
                     "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -131,81 +138,103 @@ class _MapScreenState extends State<MapScreen>
                     'com.example.women_night_corridor_map',
               ),
 
-              /// ROUTES
-              PolylineLayer(
+              /// ROUTE POLYLINES
+PolylineLayer(
 
-                polylines: routesWithScore.expand((data) {
+  polylines: routesWithScore
+      .expand<Polyline>((data) {
 
-                  final route =
-                      data["route"] as RouteData;
+    final route = data["route"] as RouteData;
+    final score = data["score"] as double;
 
-                  final score =
-                      data["score"] as double;
+    bool isSafest =
+        route.routeName == safestRoute.routeName;
 
-                  bool isSafest =
-                      route.routeName ==
-                          safestRoute.routeName;
+    /// Remove overlapping points
+    List<LatLng> filteredPoints;
 
-                  /// COLOR LOGIC
-                  Color routeColor;
+    if (isSafest) {
 
-                  if (score >= 7) {
+      filteredPoints = route.points;
 
-                    routeColor = Colors.green;
+    } else {
 
-                  } else if (score >= 4) {
+      filteredPoints = route.points.where((point) {
 
-                    routeColor = Colors.orange;
+        final key =
+            "${point.latitude},${point.longitude}";
 
-                  } else {
+        return !safestPointsSet.contains(key);
 
-                    routeColor = Colors.red;
+      }).toList();
 
-                  }
+    }
 
-                  /// SAFEST ROUTE GLOW
-                  if (isSafest) {
+    if (filteredPoints.length < 2) {
+      return <Polyline>[];
+    }
 
-                    return [
+    /// Color logic
+    Color routeColor;
 
-                      /// GLOW
-                      Polyline(
-                        points: route.points,
-                        strokeWidth: glowWidth,
-                        color: Colors.green.withValues(alpha: 0.3),
-                      ),
+    if (score >= 7) {
 
-                      /// MAIN LINE
-                      Polyline(
-                        points: route.points,
-                        strokeWidth: 6,
-                        color: Colors.green,
-                      ),
+      routeColor = Colors.green;
 
-                    ];
+    } else if (score >= 4) {
 
-                  }
+      routeColor = Colors.orange;
 
-                  /// OTHER ROUTES
-                  return [
+    } else {
 
-                    Polyline(
-                      points: route.points,
-                      strokeWidth: 5,
-                      color: routeColor,
-                    )
+      routeColor = Colors.red;
 
-                  ];
+    }
 
-                }).toList(),
+    /// SAFEST ROUTE
+    if (isSafest) {
 
-              ),
+      return <Polyline>[
+
+        /// Glow
+        Polyline(
+          points: filteredPoints,
+          strokeWidth: glowWidth,
+          color: Colors.green.withValues(alpha: 0.3),
+        ),
+
+        /// Main line
+        Polyline(
+          points: filteredPoints,
+          strokeWidth: 6,
+          color: Colors.green,
+        ),
+
+      ];
+
+    }
+
+    /// Other routes
+    return <Polyline>[
+
+      Polyline(
+        points: filteredPoints,
+        strokeWidth: 5,
+        color: routeColor,
+      ),
+
+    ];
+
+  }).toList(),
+
+),
+
 
               /// MARKERS
               MarkerLayer(
                 markers: [
 
-                  /// START
+                  /// START MARKER (Blue Circle)
                   Marker(
                     point: startPoint,
                     width: 30,
@@ -222,7 +251,7 @@ class _MapScreenState extends State<MapScreen>
                     ),
                   ),
 
-                  /// DESTINATION
+                  /// DESTINATION MARKER (Red icon)
                   Marker(
                     point: endPoint,
                     width: 50,
