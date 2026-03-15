@@ -18,11 +18,20 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
     loadHistory();
   }
 
-  void loadHistory() async {
+  /// LOAD HISTORY FROM DATABASE
+  Future<void> loadHistory() async {
 
     history = await DatabaseService.getHistory();
 
     setState(() {});
+  }
+
+  /// DELETE HISTORY ITEM
+  Future<void> deleteHistory(int id) async {
+
+    await DatabaseService.deleteHistory(id);
+
+    loadHistory();
   }
 
   @override
@@ -35,25 +44,41 @@ class _SearchHistoryScreenState extends State<SearchHistoryScreen> {
         backgroundColor: Colors.blueAccent,
       ),
 
-      body: ListView.builder(
+      body: history.isEmpty
+          ? const Center(
+              child: Text(
+                "No Search History",
+                style: TextStyle(fontSize: 16),
+              ),
+            )
 
-        itemCount: history.length,
+          : ListView.builder(
 
-        itemBuilder: (context, index) {
+              itemCount: history.length,
 
-          final item = history[index];
+              itemBuilder: (context, index) {
 
-          return ListTile(
+                final item = history[index];
 
-            leading: const Icon(Icons.history),
+                return ListTile(
 
-            title: Text(item['startPlace']),
+                  leading: const Icon(Icons.history),
 
-            subtitle: Text("To ${item['destinationPlace']}"),
+                  title: Text(item['startPlace']),
 
-          );
-        },
-      ),
+                  subtitle: Text("To ${item['destinationPlace']}"),
+
+                  /// DELETE BUTTON
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+
+                    onPressed: () {
+                      deleteHistory(item['id']);
+                    },
+                  ),
+                );
+              },
+            ),
     );
   }
 }

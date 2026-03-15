@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import '../services/database_service.dart';
 import 'map_screen.dart';
 
+
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
 
