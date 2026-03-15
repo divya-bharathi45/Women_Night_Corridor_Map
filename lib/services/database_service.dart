@@ -92,7 +92,7 @@ class DatabaseService {
   final db = await database;
 
   await db.delete(
-    "search_history",
+    "history",
     where: "id = ?",
     whereArgs: [id],
   );

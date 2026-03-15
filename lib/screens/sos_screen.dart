@@ -24,7 +24,7 @@ class SOSScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF1E2246),
 
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(0, 206, 199, 199),
+        backgroundColor: const Color.fromARGB(235, 207, 66, 66),
         elevation: 0,
         title: const Text("Emergency SOS"),
         centerTitle: true,

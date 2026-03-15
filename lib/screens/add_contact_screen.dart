@@ -38,7 +38,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
       phone: phoneController.text,
     );
 
-    await DatabaseService.insertContact(contact);
+    await DatabaseService.addContact(contact);
 
     nameController.clear();
     phoneController.clear();
