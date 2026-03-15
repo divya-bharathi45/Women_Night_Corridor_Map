@@ -4,8 +4,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
-import '../data/ambasamudram_kallidai_routes.dart';
-import '../data/route_data.dart';
+import '../data/ambasamudram_kallidaikurichi_data.dart';
+import '../models/route_data.dart';
 import '../models/safety_score.dart';
 
 class MapScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class MapScreen extends StatefulWidget {
     super.key,
     required this.startPlace,
     required this.destinationPlace,
-    required this.userPosition,
+    this.userPosition,
   });
 
   @override
@@ -33,13 +33,11 @@ class _MapScreenState extends State<MapScreen>
   void initState() {
     super.initState();
 
-    /// Glow animation controller
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    /// Show popup after screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showSafestRouteDialog();
     });
@@ -51,16 +49,16 @@ class _MapScreenState extends State<MapScreen>
     super.dispose();
   }
 
-  /// Popup dialog
+  /// Popup explaining safest route
   void _showSafestRouteDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("🛡 Safest Route Selected"),
         content: const Text(
-          "Green glowing route is safest.\n"
-          "Red route is dangerous.\n"
-          "Avoid red routes at night.",
+          "Green glowing route is the safest.\n"
+          "Red routes are less safe.\n"
+          "Choose safer paths at night.",
         ),
         actions: [
           TextButton(
@@ -75,10 +73,19 @@ class _MapScreenState extends State<MapScreen>
   @override
   Widget build(BuildContext context) {
 
-    /// STEP 1: Calculate safety scores
-    final routesWithScore = ambasamudramToKallidaiRoutes.map((route) {
+    /// Get routes
+    final List<RouteData> routes =
+        AmbasamudramKallidaikurichiData.routes;
 
-      final score = SafetyScoreCalculator.calculate(route);
+    /// Calculate safety score for each route
+    final routesWithScore = routes.map((route) {
+
+      final score = SafetyScore.calculate(
+        cctv: route.hasCCTV ? 1 : 0,
+        police: route.policeCount,
+        hospital: route.hospitalCount,
+        streetLight: route.hasStreetLights ? 1 : 0,
+      );
 
       return {
         "route": route,
@@ -87,20 +94,15 @@ class _MapScreenState extends State<MapScreen>
 
     }).toList();
 
-    /// STEP 2: Sort highest score first
+    /// Sort highest score first
     routesWithScore.sort(
       (a, b) =>
-          (b["score"] as double).compareTo(a["score"] as double),
+          (b["score"] as int).compareTo(a["score"] as int),
     );
 
-    /// STEP 3: Safest route
-    final safestRoute =
+    /// Safest route
+    final RouteData safestRoute =
         routesWithScore.first["route"] as RouteData;
-
-    /// Convert safest route points to Set for fast comparison
-    final safestPointsSet = safestRoute.points
-        .map((p) => "${p.latitude},${p.longitude}")
-        .toSet();
 
     final LatLng startPoint = safestRoute.points.first;
     final LatLng endPoint = safestRoute.points.last;
@@ -108,7 +110,8 @@ class _MapScreenState extends State<MapScreen>
     return Scaffold(
 
       appBar: AppBar(
-        title: Text("${widget.startPlace} → ${widget.destinationPlace}"),
+        title:
+            Text("${widget.startPlace} → ${widget.destinationPlace}"),
         backgroundColor: Colors.deepPurple,
       ),
 
@@ -119,7 +122,7 @@ class _MapScreenState extends State<MapScreen>
         builder: (context, child) {
 
           double glowWidth =
-              12 + (_animationController.value * 10);
+              12 + (_animationController.value * 8);
 
           return FlutterMap(
 
@@ -130,7 +133,7 @@ class _MapScreenState extends State<MapScreen>
 
             children: [
 
-              /// MAP TILES
+              /// MAP TILE
               TileLayer(
                 urlTemplate:
                     "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -138,132 +141,72 @@ class _MapScreenState extends State<MapScreen>
                     'com.example.women_night_corridor_map',
               ),
 
-              /// ROUTE POLYLINES
-PolylineLayer(
+              /// ROUTE LINES
+              PolylineLayer(
+                polylines: routes.map((route) {
 
-  polylines: routesWithScore
-      .expand<Polyline>((data) {
+                  bool isSafest =
+                      route.routeName == safestRoute.routeName;
 
-    final route = data["route"] as RouteData;
-    final score = data["score"] as double;
+                  Color routeColor;
 
-    bool isSafest =
-        route.routeName == safestRoute.routeName;
+                  if (isSafest) {
+                    routeColor =const Color.fromARGB(255, 19, 69, 21);
+                  } else {
+                    routeColor = Colors.red;
+                  }
 
-    /// Remove overlapping points
-    List<LatLng> filteredPoints;
+                  /// SAFEST ROUTE GLOW
+                  if (isSafest) {
 
-    if (isSafest) {
+                    return Polyline(
+                      points: route.points,
+                      strokeWidth: glowWidth,
+                      color: Colors.green.withOpacity(0.4),
+                    );
 
-      filteredPoints = route.points;
+                  }
 
-    } else {
+                  /// OTHER ROUTES
+                  return Polyline(
+                    points: route.points,
+                    strokeWidth: 5,
+                    color: routeColor,
+                  );
 
-      filteredPoints = route.points.where((point) {
-
-        final key =
-            "${point.latitude},${point.longitude}";
-
-        return !safestPointsSet.contains(key);
-
-      }).toList();
-
-    }
-
-    if (filteredPoints.length < 2) {
-      return <Polyline>[];
-    }
-
-    /// Color logic
-    Color routeColor;
-
-    if (score >= 7) {
-
-      routeColor = Colors.green;
-
-    } else if (score >= 4) {
-
-      routeColor = Colors.orange;
-
-    } else {
-
-      routeColor = Colors.red;
-
-    }
-
-    /// SAFEST ROUTE
-    if (isSafest) {
-
-      return <Polyline>[
-
-        /// Glow
-        Polyline(
-          points: filteredPoints,
-          strokeWidth: glowWidth,
-          color: Colors.green.withValues(alpha: 0.3),
-        ),
-
-        /// Main line
-        Polyline(
-          points: filteredPoints,
-          strokeWidth: 6,
-          color: Colors.green,
-        ),
-
-      ];
-
-    }
-
-    /// Other routes
-    return <Polyline>[
-
-      Polyline(
-        points: filteredPoints,
-        strokeWidth: 5,
-        color: routeColor,
-      ),
-
-    ];
-
-  }).toList(),
-
-),
-
+                }).toList(),
+              ),
 
               /// MARKERS
               MarkerLayer(
+
                 markers: [
 
-                  /// START MARKER (Blue Circle)
+                  /// START POINT
                   Marker(
                     point: startPoint,
-                    width: 30,
-                    height: 30,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white,
-                          width: 3,
-                        ),
-                      ),
+                    width: 40,
+                    height: 40,
+                    child: const Icon(
+                      Icons.my_location,
+                      color: Colors.blue,
+                      size: 30,
                     ),
                   ),
 
-                  /// DESTINATION MARKER (Red icon)
+                  /// DESTINATION
                   Marker(
                     point: endPoint,
-                    width: 50,
-                    height: 50,
+                    width: 40,
+                    height: 40,
                     child: const Icon(
                       Icons.location_on,
                       color: Colors.red,
-                      size: 40,
+                      size: 35,
                     ),
                   ),
 
-                  /// USER LOCATION
+                  /// USER CURRENT LOCATION
                   if (widget.userPosition != null)
                     Marker(
                       point: LatLng(
@@ -273,13 +216,14 @@ PolylineLayer(
                       width: 40,
                       height: 40,
                       child: const Icon(
-                        Icons.my_location,
+                        Icons.person_pin_circle,
                         color: Colors.blueAccent,
                         size: 30,
                       ),
                     ),
 
                 ],
+
               ),
 
             ],
@@ -291,7 +235,6 @@ PolylineLayer(
       ),
 
     );
-
   }
 
 }

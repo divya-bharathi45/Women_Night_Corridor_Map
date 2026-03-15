@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import '../services/database_service.dart';
 import 'map_screen.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -10,33 +11,41 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+
   final TextEditingController startPlaceController = TextEditingController();
-  final TextEditingController destinationPlaceController =
-      TextEditingController();
+  final TextEditingController destinationPlaceController = TextEditingController();
 
   bool usingCurrentLocation = false;
   bool loadingLocation = false;
+
   Position? userPosition;
 
+  /// GET USER CURRENT LOCATION
   Future<void> useMyLocation() async {
-    setState(() => loadingLocation = true);
+
+    setState(() {
+      loadingLocation = true;
+    });
 
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
     if (!serviceEnabled) {
-      _showSnack("Turn on location services");
-      loadingLocation = false;
+      _showSnack("Please enable location services");
+      setState(() => loadingLocation = false);
       return;
     }
 
     LocationPermission permission = await Geolocator.checkPermission();
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
 
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
+
       _showSnack("Location permission denied");
-      loadingLocation = false;
+      setState(() => loadingLocation = false);
       return;
     }
 
@@ -52,33 +61,55 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
+  }
+
+  @override
+  void dispose() {
+    startPlaceController.dispose();
+    destinationPlaceController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+
       appBar: AppBar(
         title: const Text("Plan Safe Route"),
         backgroundColor: Colors.pinkAccent,
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(20),
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+
           children: [
-            const Text(
-              "Your Safety Matters 🩵",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.lightBlueAccent,
+
+            /// SAFETY MESSAGE
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                "Your safety matters. Choose the safest route at night.",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
 
+            /// START PLACE
             TextField(
               controller: startPlaceController,
               readOnly: usingCurrentLocation,
@@ -103,6 +134,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
             const SizedBox(height: 20),
 
+            /// DESTINATION PLACE
             TextField(
               controller: destinationPlaceController,
               decoration: InputDecoration(
@@ -116,35 +148,51 @@ class _SearchScreenState extends State<SearchScreen> {
 
             const SizedBox(height: 30),
 
+            /// FIND ROUTE BUTTON
             SizedBox(
               width: double.infinity,
+
               child: ElevatedButton(
-                onPressed: () {
-                  if (destinationPlaceController.text.isEmpty) {
-                    _showSnack("Enter destination");
+
+                onPressed: () async {
+
+                  String start = startPlaceController.text.trim();
+                  String destination = destinationPlaceController.text.trim();
+
+                  if (start.isEmpty && !usingCurrentLocation) {
+                    _showSnack("Enter start place or use current location");
                     return;
                   }
 
+                  if (destination.isEmpty) {
+                    _showSnack("Enter destination place");
+                    return;
+                  }
+
+                  /// SAVE SEARCH HISTORY
+                  await DatabaseService.saveSearch(start, destination);
+
+                  /// NAVIGATE TO MAP
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => MapScreen(
-                        startPlace: startPlaceController.text,
-                        destinationPlace:
-                            destinationPlaceController.text,
+                        startPlace: start,
+                        destinationPlace: destination,
                         userPosition: userPosition,
                       ),
                     ),
                   );
                 },
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.greenAccent,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
+
                 child: const Text(
                   "Find Route",
                   style: TextStyle(fontSize: 18),

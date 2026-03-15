@@ -1,27 +1,37 @@
-import '../data/route_data.dart';
+class SafetyScore {
 
-class SafetyScoreCalculator {
-  static double calculate(RouteData route) {
-    double score = 0;
+  /// Calculates safety score based on:
+  /// - CCTV count
+  /// - Police station count
+  /// - Hospital count
+  /// - Street light count
+  ///
+  /// Returns score between 0 and 100
+  static int calculate({
+    required int cctv,
+    required int police,
+    required int hospital,
+    required int streetLight,
+  }) {
 
-    // 🛂 Police presence
-    score += route.policeCount * 2.0;
+    // 🔐 Weightage (adjustable)
+    const int cctvWeight = 4;
+    const int policeWeight = 25;
+    const int hospitalWeight = 10;
+    const int streetLightWeight = 3;
 
-    // 🏥 Hospitals
-    score += route.hospitalCount * 1.5;
+    int score = 0;
 
-    // 🎥 CCTV
-    if (route.hasCCTV) score += 3.0;
+    score += cctv * cctvWeight;
+    score += police * policeWeight;
+    score += hospital * hospitalWeight;
+    score += streetLight * streetLightWeight;
 
-    // 💡 Street lights
-    if (route.hasStreetLights) score += 2.0;
+    // 🎯 Cap maximum score at 100
+    if (score > 100) {
+      score = 100;
+    }
 
     return score;
-  }
-
-  static String getRiskLevel(double score) {
-    if (score >= 8) return "Safe";
-    if (score >= 5) return "Moderate";
-    return "Risky";
   }
 }
