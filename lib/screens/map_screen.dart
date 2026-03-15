@@ -29,6 +29,9 @@ class _MapScreenState extends State<MapScreen>
 
   late AnimationController _animationController;
 
+  List<RouteData> routes = [];
+  bool routeAvailable = false;
+
   @override
   void initState() {
     super.initState();
@@ -38,9 +41,40 @@ class _MapScreenState extends State<MapScreen>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showSafestRouteDialog();
-    });
+    loadRoutes();
+  }
+
+  /// LOAD ROUTES BASED ON USER INPUT
+  void loadRoutes() {
+
+    String start = widget.startPlace.toLowerCase().trim();
+    String end = widget.destinationPlace.toLowerCase().trim();
+
+    /// CHECK IF DATASET EXISTS
+    if (start == AmbasamudramKallidaikurichiData.startName &&
+        end == AmbasamudramKallidaikurichiData.endName) {
+
+      routes = AmbasamudramKallidaikurichiData.routes;
+      routeAvailable = true;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showSafestRouteDialog();
+      });
+
+    } else {
+
+      routeAvailable = false;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Route datapoints coming soon"),
+          ),
+        );
+      });
+    }
+
+    setState(() {});
   }
 
   @override
@@ -49,7 +83,7 @@ class _MapScreenState extends State<MapScreen>
     super.dispose();
   }
 
-  /// Popup explaining safest route
+  /// SAFEST ROUTE INFO POPUP
   void _showSafestRouteDialog() {
     showDialog(
       context: context,
@@ -73,11 +107,27 @@ class _MapScreenState extends State<MapScreen>
   @override
   Widget build(BuildContext context) {
 
-    /// Get routes
-    final List<RouteData> routes =
-        AmbasamudramKallidaikurichiData.routes;
+    /// IF NO ROUTE DATA
+    if (!routeAvailable) {
 
-    /// Calculate safety score for each route
+      return Scaffold(
+
+        appBar: AppBar(
+          title: Text("${widget.startPlace} → ${widget.destinationPlace}"),
+          backgroundColor: Colors.deepPurple,
+        ),
+
+        body: const Center(
+          child: Text(
+            "Route datapoints coming soon",
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+
+      );
+    }
+
+    /// CALCULATE SAFETY SCORE
     final routesWithScore = routes.map((route) {
 
       final score = SafetyScore.calculate(
@@ -94,13 +144,12 @@ class _MapScreenState extends State<MapScreen>
 
     }).toList();
 
-    /// Sort highest score first
+    /// SORT BY SAFETY
     routesWithScore.sort(
       (a, b) =>
           (b["score"] as int).compareTo(a["score"] as int),
     );
 
-    /// Safest route
     final RouteData safestRoute =
         routesWithScore.first["route"] as RouteData;
 
@@ -110,8 +159,7 @@ class _MapScreenState extends State<MapScreen>
     return Scaffold(
 
       appBar: AppBar(
-        title:
-            Text("${widget.startPlace} → ${widget.destinationPlace}"),
+        title: Text("${widget.startPlace} → ${widget.destinationPlace}"),
         backgroundColor: Colors.deepPurple,
       ),
 
@@ -133,7 +181,7 @@ class _MapScreenState extends State<MapScreen>
 
             children: [
 
-              /// MAP TILE
+              /// MAP TILES
               TileLayer(
                 urlTemplate:
                     "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -141,22 +189,16 @@ class _MapScreenState extends State<MapScreen>
                     'com.example.women_night_corridor_map',
               ),
 
-              /// ROUTE LINES
+              /// ROUTE POLYLINES
               PolylineLayer(
                 polylines: routes.map((route) {
 
                   bool isSafest =
                       route.routeName == safestRoute.routeName;
 
-                  Color routeColor;
+                  Color routeColor =
+                      isSafest ? Colors.green : Colors.red;
 
-                  if (isSafest) {
-                    routeColor =const Color.fromARGB(255, 19, 69, 21);
-                  } else {
-                    routeColor = Colors.red;
-                  }
-
-                  /// SAFEST ROUTE GLOW
                   if (isSafest) {
 
                     return Polyline(
@@ -167,7 +209,6 @@ class _MapScreenState extends State<MapScreen>
 
                   }
 
-                  /// OTHER ROUTES
                   return Polyline(
                     points: route.points,
                     strokeWidth: 5,
@@ -179,10 +220,9 @@ class _MapScreenState extends State<MapScreen>
 
               /// MARKERS
               MarkerLayer(
-
                 markers: [
 
-                  /// START POINT
+                  /// START
                   Marker(
                     point: startPoint,
                     width: 40,
@@ -206,7 +246,7 @@ class _MapScreenState extends State<MapScreen>
                     ),
                   ),
 
-                  /// USER CURRENT LOCATION
+                  /// USER LOCATION
                   if (widget.userPosition != null)
                     Marker(
                       point: LatLng(
@@ -223,7 +263,6 @@ class _MapScreenState extends State<MapScreen>
                     ),
 
                 ],
-
               ),
 
             ],
@@ -236,5 +275,4 @@ class _MapScreenState extends State<MapScreen>
 
     );
   }
-
 }
