@@ -39,33 +39,18 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.692219161980653, 77.4621796514716), //Ilayaraja Hospital
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
-      LatLng(
-        8.687989015753688,
-        77.46172532954827,
-      ), //Kallidaikurichi Town Panchayat Office
+      LatLng(8.687989015753688,77.46172532954827,), //Kallidaikurichi Town Panchayat Office
       LatLng(8.685882246714337, 77.46136005576729), //Apollo kallidai
       LatLng(8.684722377860535, 77.46194845757441), //TMB ATM
       LatLng(8.683877397257417, 77.4627003007461), // Tilakar vidhyalaya
-      LatLng(
-        8.681494787100771,
-        77.46521491148654,
-      ), //kallidaikurichi RS bus stop
-      LatLng(
-        8.681119385437025,
-        77.46684806636836,
-      ), //kallidaikurichi hotel SS Biriyani
+      LatLng(8.681494787100771,77.46521491148654,), //kallidaikurichi RS bus stop
+      LatLng(8.681119385437025,77.46684806636836,), //kallidaikurichi hotel SS Biriyani
       LatLng(8.68069624438349, 77.46872926766959), //kallidaikurichi Petrol Bunk
-      LatLng(
-        8.680185847913474,
-        77.47012382702678,
-      ), //kallidaikurichi New Bust Stand
+      LatLng(8.680185847913474,77.47012382702678,), //kallidaikurichi New Bust Stand
       LatLng(8.67979638094291, 77.47340846234984), // kottaitheru-kallidai end
       LatLng(8.680148537252103, 77.47603161224738), //Thamirabarani river meet
       LatLng(8.678974607319928, 77.47845021339509), //Thamirabarani river meet2
-      LatLng(
-        8.678639384284915,
-        77.4806434995189,
-      ), // Mayopathy Home -Kallidaikurichi ends
+      LatLng(8.678639384284915,77.4806434995189,), // Mayopathy Home -Kallidaikurichi ends
     ],
     policeCount: 4,
     hospitalCount: 16,
@@ -92,10 +77,7 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.708678006863478, 77.43923559700454), //Bypass starting
       LatLng(8.709144632864092, 77.43998661552985), //Bypass
       LatLng(8.709187053388025, 77.44270101105097), //Bypass
-      LatLng(
-        8.709099412124411,
-        77.44500093574294,
-      ), //Pothigai narayana samy temple
+      LatLng(8.709099412124411,77.44500093574294,), //Pothigai narayana samy temple
       LatLng(8.709035947765722, 77.44754125478543), //Madasamy temple
       LatLng(8.708957427579461, 77.4497107050797), //bypass river
       LatLng(8.708735856157984, 77.45466991870846), //bypass areas
@@ -116,26 +98,14 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.680097346328942, 77.47619245502402), // selve vinayagar temple
       LatLng(8.680044286430821, 77.4753178969457), //suriya fish farm
       LatLng(8.67979638094291, 77.47340846234984), // kottaitheru-kallidai end
-      LatLng(
-        8.680185847913474,
-        77.47012382702678,
-      ), //kallidaikurichi New Bus stand
+      LatLng(8.680185847913474,77.47012382702678,), //kallidaikurichi New Bus stand
       LatLng(8.68069624438349, 77.46872926766959), //kallidaikurichi Petrol Bunk
-      LatLng(
-        8.681119385437025,
-        77.46684806636836,
-      ), //kallidaikurichi hotel SS Biriyani
-      LatLng(
-        8.681494787100771,
-        77.46521491148654,
-      ), //kallidaikurichi RS bus stop
+      LatLng(8.681119385437025,77.46684806636836,), //kallidaikurichi hotel SS Biriyani
+      LatLng(8.681494787100771,77.46521491148654,), //kallidaikurichi RS bus stop
       LatLng(8.683877397257417, 77.4627003007461), // Tilakar vidhyalaya
       LatLng(8.684722377860535, 77.46194845757441), //TMB ATM
       LatLng(8.685882246714337, 77.46136005576729), //Apollo kallidai
-      LatLng(
-        8.687989015753688,
-        77.46172532954827,
-      ), //Kallidaikurichi Town Panchayat Office
+      LatLng(8.687989015753688,77.46172532954827,), //Kallidaikurichi Town Panchayat Office
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
     ],
@@ -186,26 +156,14 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.703478405053719, 77.46274944774103), // bypass road
       LatLng(8.680044286430821, 77.4753178969457), //suriya fish farm
       LatLng(8.67979638094291, 77.47340846234984), // kottaitheru-kallidai end
-      LatLng(
-        8.680185847913474,
-        77.47012382702678,
-      ), //kallidaikurichi New Bus stand
+      LatLng(8.680185847913474,77.47012382702678,), //kallidaikurichi New Bus stand
       LatLng(8.68069624438349, 77.46872926766959), //kallidaikurichi Petrol Bunk
-      LatLng(
-        8.681119385437025,
-        77.46684806636836,
-      ), //kallidaikurichi hotel SS Biriyani
-      LatLng(
-        8.681494787100771,
-        77.46521491148654,
-      ), //kallidaikurichi RS bus stop
+      LatLng(8.681119385437025,77.46684806636836,), //kallidaikurichi hotel SS Biriyani
+      LatLng(8.681494787100771,77.46521491148654,), //kallidaikurichi RS bus stop
       LatLng(8.683877397257417, 77.4627003007461), // Tilakar vidhyalaya
       LatLng(8.684722377860535, 77.46194845757441), //TMB ATM
       LatLng(8.685882246714337, 77.46136005576729), //Apollo kallidai
-      LatLng(
-        8.687989015753688,
-        77.46172532954827,
-      ), //Kallidaikurichi Town Panchayat Office
+      LatLng(8.687989015753688,77.46172532954827,), //Kallidaikurichi Town Panchayat Office
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
     ],
@@ -256,33 +214,18 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.692219161980653, 77.4621796514716), //Ilayaraja Hospital
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
-      LatLng(
-        8.687989015753688,
-        77.46172532954827,
-      ), //Kallidaikurichi Town Panchayat Office
+      LatLng(8.687989015753688,77.46172532954827,), //Kallidaikurichi Town Panchayat Office
       LatLng(8.685882246714337, 77.46136005576729), //Apollo kallidai
       LatLng(8.684722377860535, 77.46194845757441), //TMB ATM
       LatLng(8.683877397257417, 77.4627003007461), // Tilakar vidhyalaya
-      LatLng(
-        8.681494787100771,
-        77.46521491148654,
-      ), //kallidaikurichi RS bus stop
-      LatLng(
-        8.681119385437025,
-        77.46684806636836,
-      ), //kallidaikurichi hotel SS Biriyani
+      LatLng(8.681494787100771,77.46521491148654,), //kallidaikurichi RS bus stop
+      LatLng(8.681119385437025,77.46684806636836,), //kallidaikurichi hotel SS Biriyani
       LatLng(8.68069624438349, 77.46872926766959), //kallidaikurichi Petrol Bunk
-      LatLng(
-        8.680185847913474,
-        77.47012382702678,
-      ), //kallidaikurichi New Bust Stand
+      LatLng(8.680185847913474,77.47012382702678,), //kallidaikurichi New Bust Stand
       LatLng(8.67979638094291, 77.47340846234984), // kottaitheru-kallidai end
       LatLng(8.680148537252103, 77.47603161224738), //Thamirabarani river meet
       LatLng(8.678974607319928, 77.47845021339509), //Thamirabarani river meet2
-      LatLng(
-        8.678639384284915,
-        77.4806434995189,
-      ), // Mayopathy Home -Kallidaikurichi ends
+      LatLng(8.678639384284915,77.4806434995189,), // Mayopathy Home -Kallidaikurichi ends
     ],
     policeCount: 2,
     hospitalCount: 10,
