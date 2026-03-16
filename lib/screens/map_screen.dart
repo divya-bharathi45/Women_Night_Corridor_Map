@@ -32,6 +32,11 @@ class _MapScreenState extends State<MapScreen>
   List<RouteData> routes = [];
   bool routeAvailable = false;
 
+  /// store route scores
+  Map<RouteData, int> routeScores = {};
+
+  final Distance distance = const Distance();
+
   @override
   void initState() {
     super.initState();
@@ -44,18 +49,30 @@ class _MapScreenState extends State<MapScreen>
     loadRoutes();
   }
 
-  /// LOAD ROUTES BASED ON USER INPUT
+  /// LOAD ROUTES
   void loadRoutes() {
 
     String start = widget.startPlace.toLowerCase().trim();
     String end = widget.destinationPlace.toLowerCase().trim();
 
-    /// CHECK IF DATASET EXISTS
     if (start == AmbasamudramKallidaikurichiData.startName &&
         end == AmbasamudramKallidaikurichiData.endName) {
 
       routes = AmbasamudramKallidaikurichiData.routes;
       routeAvailable = true;
+
+      /// calculate scores
+      for (var route in routes) {
+
+        int score = SafetyScore.calculate(
+          cctv: route.hasCCTV ? 1 : 0,
+          police: route.policeCount,
+          hospital: route.hospitalCount,
+          streetLight: route.hasStreetLights ? 1 : 0,
+        );
+
+        routeScores[route] = score;
+      }
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _showSafestRouteDialog();
@@ -83,16 +100,95 @@ class _MapScreenState extends State<MapScreen>
     super.dispose();
   }
 
-  /// SAFEST ROUTE INFO POPUP
+  /// SAFEST ROUTE
+  RouteData getSafestRoute() {
+
+    routes.sort((a, b) =>
+        routeScores[b]!.compareTo(routeScores[a]!));
+
+    return routes.first;
+  }
+
+  /// TAP DETECTION
+  void onMapTap(LatLng tappedPoint) {
+
+    RouteData? selectedRoute;
+
+    double minDistance = double.infinity;
+
+    for (var route in routes) {
+
+      for (var point in route.points) {
+
+        double d = distance.as(
+          LengthUnit.Meter,
+          tappedPoint,
+          point,
+        );
+
+        if (d < minDistance) {
+          minDistance = d;
+          selectedRoute = route;
+        }
+      }
+    }
+
+    if (selectedRoute != null && minDistance < 200) {
+
+      int score = routeScores[selectedRoute]!;
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+
+          title: Text(selectedRoute!.routeName),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+
+              Text("Safety Score : $score"),
+
+              const SizedBox(height: 10),
+
+              Text("Police Stations : ${selectedRoute.policeCount}"),
+              Text("Hospitals : ${selectedRoute.hospitalCount}"),
+
+              Text(
+                "CCTV : ${selectedRoute.hasCCTV ? "Yes" : "No"}",
+              ),
+
+              Text(
+                "Street Lights : ${selectedRoute.hasStreetLights ? "Yes" : "No"}",
+              ),
+
+            ],
+          ),
+
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Close"),
+            )
+          ],
+
+        ),
+      );
+    }
+  }
+
+  /// SAFEST ROUTE POPUP
   void _showSafestRouteDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("🛡 Safest Route Selected"),
         content: const Text(
-          "Green glowing route is the safest.\n"
-          "Red routes are less safe.\n"
-          "Choose safer paths at night.",
+          "Green route is safest\n"
+          "Orange route is moderate\n"
+          "Red route is risky\n\n"
+          "Tap any route to see safety details.",
         ),
         actions: [
           TextButton(
@@ -107,60 +203,26 @@ class _MapScreenState extends State<MapScreen>
   @override
   Widget build(BuildContext context) {
 
-    /// IF NO ROUTE DATA
     if (!routeAvailable) {
-
       return Scaffold(
-
         appBar: AppBar(
           title: Text("${widget.startPlace} → ${widget.destinationPlace}"),
-          backgroundColor: Colors.deepPurple,
         ),
-
         body: const Center(
-          child: Text(
-            "Route datapoints coming soon",
-            style: TextStyle(fontSize: 18),
-          ),
+          child: Text("Route datapoints coming soon"),
         ),
-
       );
     }
 
-    /// CALCULATE SAFETY SCORE
-    final routesWithScore = routes.map((route) {
+    RouteData safestRoute = getSafestRoute();
 
-      final score = SafetyScore.calculate(
-        cctv: route.hasCCTV ? 1 : 0,
-        police: route.policeCount,
-        hospital: route.hospitalCount,
-        streetLight: route.hasStreetLights ? 1 : 0,
-      );
-
-      return {
-        "route": route,
-        "score": score,
-      };
-
-    }).toList();
-
-    /// SORT BY SAFETY
-    routesWithScore.sort(
-      (a, b) =>
-          (b["score"] as int).compareTo(a["score"] as int),
-    );
-
-    final RouteData safestRoute =
-        routesWithScore.first["route"] as RouteData;
-
-    final LatLng startPoint = safestRoute.points.first;
-    final LatLng endPoint = safestRoute.points.last;
+    LatLng startPoint = safestRoute.points.first;
+    LatLng endPoint = safestRoute.points.last;
 
     return Scaffold(
 
       appBar: AppBar(
         title: Text("${widget.startPlace} → ${widget.destinationPlace}"),
-        backgroundColor: Colors.deepPurple,
       ),
 
       body: AnimatedBuilder(
@@ -169,19 +231,20 @@ class _MapScreenState extends State<MapScreen>
 
         builder: (context, child) {
 
-          double glowWidth =
-              12 + (_animationController.value * 8);
+          double glowWidth = 10 + (_animationController.value * 8);
 
           return FlutterMap(
 
             options: MapOptions(
               initialCenter: startPoint,
               initialZoom: 13,
+              onTap: (tapPosition, latlng) {
+                onMapTap(latlng);
+              },
             ),
 
             children: [
 
-              /// MAP TILES
               TileLayer(
                 urlTemplate:
                     "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -189,30 +252,31 @@ class _MapScreenState extends State<MapScreen>
                     'com.example.women_night_corridor_map',
               ),
 
-              /// ROUTE POLYLINES
+              /// ROUTES
               PolylineLayer(
                 polylines: routes.map((route) {
 
-                  bool isSafest =
-                      route.routeName == safestRoute.routeName;
+                  int score = routeScores[route]!;
 
-                  Color routeColor =
-                      isSafest ? Colors.green : Colors.red;
+                  Color color;
 
-                  if (isSafest) {
-
-                    return Polyline(
-                      points: route.points,
-                      strokeWidth: glowWidth,
-                      color: Colors.green.withOpacity(0.4),
-                    );
-
+                  if (route.routeName == safestRoute.routeName) {
+                    color = Colors.green;
+                  } else if (score >= 40) {
+                    color = Colors.orange;
+                  } else {
+                    color = Colors.red;
                   }
+
+                  double width =
+                      route.routeName == safestRoute.routeName
+                          ? glowWidth
+                          : 5;
 
                   return Polyline(
                     points: route.points,
-                    strokeWidth: 5,
-                    color: routeColor,
+                    strokeWidth: width,
+                    color: color.withOpacity(0.8),
                   );
 
                 }).toList(),
@@ -222,7 +286,6 @@ class _MapScreenState extends State<MapScreen>
               MarkerLayer(
                 markers: [
 
-                  /// START
                   Marker(
                     point: startPoint,
                     width: 40,
@@ -230,11 +293,9 @@ class _MapScreenState extends State<MapScreen>
                     child: const Icon(
                       Icons.my_location,
                       color: Colors.blue,
-                      size: 30,
                     ),
                   ),
 
-                  /// DESTINATION
                   Marker(
                     point: endPoint,
                     width: 40,
@@ -242,11 +303,9 @@ class _MapScreenState extends State<MapScreen>
                     child: const Icon(
                       Icons.location_on,
                       color: Colors.red,
-                      size: 35,
                     ),
                   ),
 
-                  /// USER LOCATION
                   if (widget.userPosition != null)
                     Marker(
                       point: LatLng(
@@ -258,7 +317,6 @@ class _MapScreenState extends State<MapScreen>
                       child: const Icon(
                         Icons.person_pin_circle,
                         color: Colors.blueAccent,
-                        size: 30,
                       ),
                     ),
 

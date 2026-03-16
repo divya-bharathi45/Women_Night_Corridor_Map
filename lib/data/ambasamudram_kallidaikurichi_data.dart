@@ -67,8 +67,8 @@ class AmbasamudramKallidaikurichiData {
         77.4806434995189,
       ), // Mayopathy Home -Kallidaikurichi ends
     ],
-    policeCount: 9,
-    hospitalCount: 8,
+    policeCount: 4,
+    hospitalCount: 16,
     hasCCTV: true,
     hasStreetLights: true,
   ),
@@ -139,7 +139,7 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
     ],
-    policeCount: 0,
+    policeCount: 1,
     hospitalCount: 0,
     hasCCTV: false,
     hasStreetLights: false,
@@ -209,10 +209,10 @@ class AmbasamudramKallidaikurichiData {
       LatLng(8.688933120413013, 77.46196644189244), //Canara Bank ATM
       LatLng(8.690288635358137, 77.4622854543934), //Ayappan Kovil
     ],
-    policeCount: 8,
+    policeCount: 1,
     hospitalCount: 5,
-    hasCCTV: false,
-    hasStreetLights: false,
+    hasCCTV: true,
+    hasStreetLights: true,
   ),
 
   RouteData(
@@ -284,8 +284,8 @@ class AmbasamudramKallidaikurichiData {
         77.4806434995189,
       ), // Mayopathy Home -Kallidaikurichi ends
     ],
-    policeCount: 8,
-    hospitalCount: 5,
+    policeCount: 2,
+    hospitalCount: 10,
     hasCCTV: true,
     hasStreetLights: true,
   ),

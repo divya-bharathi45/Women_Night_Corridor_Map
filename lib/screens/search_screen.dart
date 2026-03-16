@@ -100,7 +100,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
-                "Your safety matters. Choose the safest route at night.",
+                "Your safety matters. Choose the safest route.",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
